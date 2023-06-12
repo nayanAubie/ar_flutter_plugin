@@ -1,4 +1,6 @@
 import 'dart:math' show sqrt;
+import 'dart:developer' as developer;
+
 import 'dart:typed_data';
 
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
@@ -33,9 +35,8 @@ class ARSessionManager {
       {this.debug = false}) {
     _channel = MethodChannel('arsession_$id');
     _channel.setMethodCallHandler(_platformCallHandler);
-    if (debug) {
-      print("ARSessionManager initialized");
-    }
+
+    developer.log("ARSessionManager initialized");
   }
 
   /// Returns the camera pose in Matrix4 format with respect to the world coordinate system of the [ARView]
@@ -104,15 +105,14 @@ class ARSessionManager {
   }
 
   Future<void> _platformCallHandler(MethodCall call) {
-    if (debug) {
-      print('_platformCallHandler call ${call.method} ${call.arguments}');
-    }
+    developer.log('_platformCallHandler call ${call.method} ${call.arguments}');
+
     try {
       switch (call.method) {
         case 'onError':
           if (onError != null) {
             onError(call.arguments[0]);
-            print(call.arguments);
+            developer.log(call.arguments);
           }
           break;
         case 'onPlaneOrPointTap':
@@ -132,13 +132,12 @@ class ARSessionManager {
           _channel.invokeMethod<void>("dispose");
           break;
         default:
-          if (debug) {
-            print('Unimplemented method ${call.method} ');
-          }
+          developer.log('Unimplemented method ${call.method} ');
       }
     } catch (e) {
-      print('Error caught: ' + e.toString());
+      developer.log('Error in ARSessionManager._platformCallHandler: $e');
     }
+
     return Future.value();
   }
 
@@ -184,7 +183,7 @@ class ARSessionManager {
     try {
       await _channel.invokeMethod<void>("dispose");
     } catch (e) {
-      print(e);
+      developer.log("Error disposing ARSessionManager: $e");
     }
   }
 
