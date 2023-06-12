@@ -1,7 +1,5 @@
-import 'dart:math' show sqrt;
 import 'dart:developer' as developer;
-
-import 'dart:typed_data';
+import 'dart:math' show sqrt;
 
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin/models/ar_anchor.dart';
@@ -110,23 +108,18 @@ class ARSessionManager {
     try {
       switch (call.method) {
         case 'onError':
-          if (onError != null) {
-            onError(call.arguments[0]);
-            developer.log(call.arguments);
-          }
+          onError(call.arguments[0]);
+          developer.log(call.arguments);
           break;
         case 'onPlaneOrPointTap':
-          if (onPlaneOrPointTap != null) {
-            final rawHitTestResults = call.arguments as List<dynamic>;
-            final serializedHitTestResults = rawHitTestResults
-                .map(
-                    (hitTestResult) => Map<String, dynamic>.from(hitTestResult))
-                .toList();
-            final hitTestResults = serializedHitTestResults.map((e) {
-              return ARHitTestResult.fromJson(e);
-            }).toList();
-            onPlaneOrPointTap(hitTestResults);
-          }
+          final rawHitTestResults = call.arguments as List<dynamic>;
+          final serializedHitTestResults = rawHitTestResults
+              .map((hitTestResult) => Map<String, dynamic>.from(hitTestResult))
+              .toList();
+          final hitTestResults = serializedHitTestResults.map((e) {
+            return ARHitTestResult.fromJson(e);
+          }).toList();
+          onPlaneOrPointTap(hitTestResults);
           break;
         case 'dispose':
           _channel.invokeMethod<void>("dispose");

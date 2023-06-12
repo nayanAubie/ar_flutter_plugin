@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
+import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class ScreenshotWidget extends StatefulWidget {
   const ScreenshotWidget({Key? key}) : super(key: key);
+
   @override
   _ScreenshotWidgetState createState() => _ScreenshotWidgetState();
 }
@@ -25,31 +26,36 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Screenshots'),
-        ),
-        body: 
-        Container(
-            child:
-          Stack(children: [
-          ARView(
-            onARViewCreated: onARViewCreated,
-            planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
-          ),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: Row(
+      appBar: AppBar(
+        title: const Text('Screenshots'),
+      ),
+      body: Container(
+        child: Stack(
+          children: [
+            ARView(
+              onARViewCreated: onARViewCreated,
+              planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+            ),
+            Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                      onPressed: onRemoveEverything,
-                      child: const Text("Remove Everything")),
+                    onPressed: onRemoveEverything,
+                    child: const Text("Remove Everything"),
+                  ),
                   ElevatedButton(
-                      onPressed: onTakeScreenshot,
-                      child: const Text("Take Screenshot")),
-                ]),
-          )
-        ])));
+                    onPressed: onTakeScreenshot,
+                    child: const Text("Take Screenshot"),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   void onARViewCreated(
@@ -78,10 +84,9 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
       this.arObjectManager.removeNode(node);
     });*/
     // anchors.forEach((anchor)
-    for (var anchor in anchors)
-     {
+    for (var anchor in anchors) {
       arAnchorManager!.removeAnchor(anchor);
-    };
+    }
     anchors = [];
   }
 
@@ -106,42 +111,29 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
       List<ARHitTestResult> hitTestResults) async {
     var singleHitTestResult = hitTestResults.firstWhere(
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
-    if (singleHitTestResult != null) {
-      var newAnchor =
-          ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
-      bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
-      if (didAddAnchor != null && didAddAnchor) {
-        anchors.add(newAnchor);
-        // Add note to anchor
-        var newNode = ARNode(
-            type: NodeType.webGLB,
-            uri:
-                "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
-            scale: Vector3(0.2, 0.2, 0.2),
-            position: Vector3(0.0, 0.0, 0.0),
-            rotation: Vector4(1.0, 0.0, 0.0, 0.0));
-        bool? didAddNodeToAnchor =
-            await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
-        
-        if (didAddNodeToAnchor != null && didAddNodeToAnchor) {
-          nodes.add(newNode);
-        } else {
-          arSessionManager!.onError("Adding Node to Anchor failed");
-        }
-      } else {
-        arSessionManager!.onError("Adding Anchor failed");
-      }
-      /*
-      // To add a node to the tapped position without creating an anchor, use the following code (Please mind: the function onRemoveEverything has to be adapted accordingly!):
+    var newAnchor =
+        ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
+    bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
+    if (didAddAnchor != null && didAddAnchor) {
+      anchors.add(newAnchor);
+      // Add note to anchor
       var newNode = ARNode(
-          type: NodeType.localGLTF2,
-          uri: "Models/Chicken_01/Chicken_01.gltf",
+          type: NodeType.webGLB,
+          uri:
+              "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
           scale: Vector3(0.2, 0.2, 0.2),
-          transformation: singleHitTestResult.worldTransform);
-      bool didAddWebNode = await this.arObjectManager.addNode(newNode);
-      if (didAddWebNode) {
-        this.nodes.add(newNode);
-      }*/
+          position: Vector3(0.0, 0.0, 0.0),
+          rotation: Vector4(1.0, 0.0, 0.0, 0.0));
+      bool? didAddNodeToAnchor =
+          await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
+
+      if (didAddNodeToAnchor != null && didAddNodeToAnchor) {
+        nodes.add(newNode);
+      } else {
+        arSessionManager!.onError("Adding Node to Anchor failed");
+      }
+    } else {
+      arSessionManager!.onError("Adding Anchor failed");
     }
   }
 }
